@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>水平器</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+            flex-direction: column;
+        }
+        #bubble {
+            width: 20px;
+            height: 20px;
+            background-color: #26A79A;
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        #level {
+            width: calc(80% / sqrt(2)); 
+            height: 10px;
+            background-color: lightgrey;
+            position: relative;
+        }
+        #sensor_contents {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #26A79A;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        #sensor_contents.active {
+            background-color: #dc3545; 
+        }
+    </style>
+</head>
+<body>
+    <div id="level">
+        <div id="bubble"></div>
+    </div>
+    <button id="sensor_contents">開始</button>
+
+    <script>
+        var isActive = false;
+        var sensorContents = document.getElementById("sensor_contents");
+
+        if (window.DeviceOrientationEvent) {
+            if (DeviceOrientationEvent.requestPermission) {
+                sensorContents.addEventListener("click", function() {
+                    DeviceOrientationEvent.requestPermission().then(function(response) {
+                        if (response === "granted") {
+                            toggleSensor();
+                        }
+                    }).catch(function(e) {
+                        console.log(e);
+                    });
+                });
+            } else {
+                sensorContents.addEventListener("click", toggleSensor);
+            }
+        }
+
+        function toggleSensor() {
+            if (isActive) {
+                window.removeEventListener('deviceorientation', handleOrientationEvent);
+                sensorContents.innerText = '開始';
+                sensorContents.classList.remove('active');
+            } else {
+                window.addEventListener('deviceorientation', handleOrientationEvent);
+                sensorContents.innerText = '一時停止';
+                sensorContents.classList.add('active');
+            }
+            isActive = !isActive;
+        }
+
+        function handleOrientationEvent(event) {
+            var bubble = document.getElementById('bubble');
+            var x = event.gamma; 
+
+            var orientation = window.orientation || 0;
+            if (orientation === 90) {
+                x = -event.beta;
+            } else if (orientation === -90) {
+                x = event.beta;
+            } else if (orientation === 180) {
+                x = -event.gamma;
+            }
+
+            var maxTilt = 90;
+            var levelWidth = document.getElementById('level').clientWidth;
+            var bubbleWidth = bubble.clientWidth;
+            var centerX = (levelWidth - bubbleWidth) / 2;
+
+            x = centerX + (x / maxTilt) * (levelWidth / 2);
+
+            x = Math.max(0, Math.min(x, levelWidth - bubbleWidth));
+
+            bubble.style.left = x + 'px';
+        }
+    </script>
+</body>
+</html>
