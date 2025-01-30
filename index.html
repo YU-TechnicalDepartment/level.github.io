@@ -29,6 +29,15 @@
             background-color: lightgrey;
             position: relative;
         }
+        #centerline {
+            width: 2px;
+            height: 300%;
+            background-color: red;
+            position: absolute;
+            top: -100%;
+            left: 50%;
+            transform: translateX(-50%);
+        }
         #sensor_contents {
             margin-top: 20px;
             padding: 10px 20px;
@@ -46,6 +55,7 @@
 </head>
 <body>
     <div id="level">
+        <div id="centerline"></div>
         <div id="bubble"></div>
     </div>
     <button id="sensor_contents">開始</button>
